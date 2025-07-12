@@ -8,7 +8,7 @@ const { auth } = require('../middleware/auth');
 const router = express.Router();
 
 // @route   GET /api/messages/conversations
-// @desc    Get user conversations
+// @desc    Get user conversationsd
 // @access  Private
 router.get('/conversations', asyncHandler(async (req, res) => {
     const { page = 1, limit = 20 } = req.query;

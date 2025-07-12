@@ -7,14 +7,26 @@ const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const http = require('http');
 const socketIo = require('socket.io');
+const path = require('path');
+const fs = require('fs');
 
 // Load environment variables
 dotenv.config();
 
-// Debug: Check if environment variables are loaded
-console.log('🔧 Environment check:');
-console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
-console.log('NODE_ENV:', process.env.NODE_ENV || 'development');
+// Create uploads directories if they don't exist
+const uploadsDir = path.join(__dirname, 'uploads');
+const farmsUploadsDir = path.join(uploadsDir, 'farms');
+const cropsUploadsDir = path.join(uploadsDir, 'crops');
+
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+if (!fs.existsSync(farmsUploadsDir)) {
+    fs.mkdirSync(farmsUploadsDir, { recursive: true });
+}
+if (!fs.existsSync(cropsUploadsDir)) {
+    fs.mkdirSync(cropsUploadsDir, { recursive: true });
+}
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -23,6 +35,7 @@ const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
 const reviewRoutes = require('./routes/reviews');
 const messageRoutes = require('./routes/messages');
+const farmRoutes = require('./routes/farms');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -53,6 +66,9 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Database connection
 const connectDB = async () => {
@@ -100,6 +116,10 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', auth, orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/messages', auth, messageRoutes);
+app.use('/api/farms', farmRoutes);
+
+// Apply auth middleware to specific auth routes that need it
+app.use('/api/auth/logout', auth);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

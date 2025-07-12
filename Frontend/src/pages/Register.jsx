@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useRef, useEffect } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 const Register = () => {
@@ -12,16 +12,59 @@ const Register = () => {
         confirmPassword: '',
         role: 'buyer',
         phone: '',
-        farmName: '',
-        farmDescription: '',
-        address: '',
-        city: '',
-        state: '',
-        zipCode: ''
+        bio: ''
     })
+    
+    // Farm-specific state
+    const [farmData, setFarmData] = useState({
+        name: '',
+        description: '',
+        farmType: 'mixed',
+        totalArea: { value: '', unit: 'acres' },
+        location: {
+            address: '',
+            city: '',
+            state: '',
+            zipCode: '',
+            coordinates: { lat: 0, lng: 0 }
+        },
+        certifications: [],
+        farmingMethods: []
+    })
+    
+    const [farmImages, setFarmImages] = useState([])
+    const [farmVideos, setFarmVideos] = useState([])
     const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
-    const { register } = useAuth()
+    const { register, user, isAuthenticated } = useAuth()
+    const navigate = useNavigate()
+    const [searchParams] = useSearchParams()
+    
+    // File input refs
+    const imageInputRef = useRef(null)
+    const videoInputRef = useRef(null)
+
+    // Check if user is already logged in
+    useEffect(() => {
+        if (isAuthenticated && user) {
+            navigate('/dashboard')
+            return
+        }
+        
+        // Check if joining as farmer from URL params
+        const joinAsFarmer = searchParams.get('joinAsFarmer')
+        if (joinAsFarmer === 'true') {
+            setFormData(prev => ({
+                ...prev,
+                role: 'farmer'
+            }))
+        }
+    }, [isAuthenticated, user, navigate, searchParams])
+
+    // Don't render the form if user is already logged in
+    if (isAuthenticated && user) {
+        return null
+    }
 
     const handleChange = (e) => {
         const { name, value } = e.target
@@ -36,6 +79,112 @@ const Register = () => {
                 [name]: ''
             }))
         }
+    }
+
+    const handleFarmChange = (e) => {
+        const { name, value } = e.target
+        if (name.includes('.')) {
+            const [parent, child] = name.split('.')
+            setFarmData(prev => ({
+                ...prev,
+                [parent]: {
+                    ...prev[parent],
+                    [child]: value
+                }
+            }))
+        } else {
+            setFarmData(prev => ({
+                ...prev,
+                [name]: value
+            }))
+        }
+        
+        // Clear error when user starts typing
+        if (errors[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }))
+        }
+    }
+
+    const handleAreaChange = (e) => {
+        const { name, value } = e.target
+        setFarmData(prev => ({
+            ...prev,
+            totalArea: {
+                ...prev.totalArea,
+                [name]: value
+            }
+        }))
+    }
+
+    const handleCertificationChange = (certification) => {
+        setFarmData(prev => ({
+            ...prev,
+            certifications: prev.certifications.includes(certification)
+                ? prev.certifications.filter(c => c !== certification)
+                : [...prev.certifications, certification]
+        }))
+    }
+
+    const handleFarmingMethodChange = (method) => {
+        setFarmData(prev => ({
+            ...prev,
+            farmingMethods: prev.farmingMethods.includes(method)
+                ? prev.farmingMethods.filter(m => m !== method)
+                : [...prev.farmingMethods, method]
+        }))
+    }
+
+    const handleImageUpload = (e) => {
+        const files = Array.from(e.target.files)
+        const imageFiles = files.filter(file => file.type.startsWith('image/'))
+        
+        if (imageFiles.length + farmImages.length > 10) {
+            alert('Maximum 10 images allowed')
+            return
+        }
+
+        const newImages = imageFiles.map(file => ({
+            file,
+            preview: URL.createObjectURL(file),
+            name: file.name
+        }))
+
+        setFarmImages(prev => [...prev, ...newImages])
+    }
+
+    const handleVideoUpload = (e) => {
+        const files = Array.from(e.target.files)
+        const videoFiles = files.filter(file => file.type.startsWith('video/'))
+        
+        if (videoFiles.length + farmVideos.length > 5) {
+            alert('Maximum 5 videos allowed')
+            return
+        }
+
+        const newVideos = videoFiles.map(file => ({
+            file,
+            preview: URL.createObjectURL(file),
+            name: file.name
+        }))
+
+        setFarmVideos(prev => [...prev, ...newVideos])
+    }
+
+    const removeImage = (index) => {
+        setFarmImages(prev => {
+            const newImages = prev.filter((_, i) => i !== index)
+            return newImages
+        })
+    }
+
+    const removeVideo = (index) => {
+        setFarmVideos(prev => {
+            const newVideos = prev.filter((_, i) => i !== index)
+            return newVideos
+        })
     }
 
     const validateForm = () => {
@@ -63,18 +212,21 @@ const Register = () => {
             newErrors.email = 'Email is invalid'
         }
 
-        if (!formData.password) {
-            newErrors.password = 'Password is required'
-        } else if (formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters'
-        } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-            newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number'
-        }
+        // Only validate password if not joining as farmer (logged-in user)
+        if (!searchParams.get('joinAsFarmer')) {
+            if (!formData.password) {
+                newErrors.password = 'Password is required'
+            } else if (formData.password.length < 6) {
+                newErrors.password = 'Password must be at least 6 characters'
+            } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+                newErrors.password = 'Password must contain at least one uppercase letter, one lowercase letter, and one number'
+            }
 
-        if (!formData.confirmPassword) {
-            newErrors.confirmPassword = 'Please confirm your password'
-        } else if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match'
+            if (!formData.confirmPassword) {
+                newErrors.confirmPassword = 'Please confirm your password'
+            } else if (formData.password !== formData.confirmPassword) {
+                newErrors.confirmPassword = 'Passwords do not match'
+            }
         }
 
         if (!formData.phone.trim()) {
@@ -83,21 +235,16 @@ const Register = () => {
 
         // Farmer-specific validation
         if (formData.role === 'farmer') {
-            if (!formData.farmName.trim()) {
-                newErrors.farmName = 'Farm name is required for farmers'
+            if (!formData.bio.trim()) {
+                newErrors.bio = 'Bio is required for farmers'
             }
-            if (!formData.address.trim()) {
-                newErrors.address = 'Address is required for farmers'
+            
+            // Farm validation - only basic info required
+            if (!farmData.name.trim()) {
+                newErrors.farmName = 'Farm name is required'
             }
-            if (!formData.city.trim()) {
-                newErrors.city = 'City is required for farmers'
-            }
-            if (!formData.state.trim()) {
-                newErrors.state = 'State is required for farmers'
-            }
-            if (!formData.zipCode.trim()) {
-                newErrors.zipCode = 'Zip code is required for farmers'
-            }
+            
+            // All other farm fields are now optional
         }
 
         setErrors(newErrors)
@@ -116,28 +263,40 @@ const Register = () => {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email,
-                password: formData.password,
                 role: formData.role,
-                phone: formData.phone
+                phone: formData.phone,
+                bio: formData.bio
             }
 
-            // Add farmer-specific fields
+            // Only include password if not joining as farmer (logged-in user)
+            if (!searchParams.get('joinAsFarmer')) {
+                userData.password = formData.password
+            }
+
+            // Add location for farmers
             if (formData.role === 'farmer') {
-                userData.farmName = formData.farmName
-                userData.farmDescription = formData.farmDescription
                 userData.location = {
-                    address: formData.address,
-                    city: formData.city,
-                    state: formData.state,
-                    zipCode: formData.zipCode,
-                    coordinates: {
-                        lat: 0, // Default coordinates - should be set by geocoding
-                        lng: 0
-                    }
+                    address: farmData.location.address,
+                    city: farmData.location.city,
+                    state: farmData.location.state,
+                    zipCode: farmData.location.zipCode,
+                    coordinates: farmData.location.coordinates
                 }
             }
 
-            await register(userData)
+            const result = await register(userData)
+            
+            if (result.success) {
+                // User is now logged in and will be redirected by AuthContext
+                // If farmer, they can add their first farm through the FarmManager
+                if (formData.role === 'farmer') {
+                    // The AuthContext will redirect to dashboard with addFarm=true
+                    console.log('Farmer registered successfully, redirecting to add farm...')
+                }
+            } else {
+                // Registration failed, stay on the form
+                console.error('Registration failed:', result.error)
+            }
         } catch (error) {
             console.error('Registration error:', error)
         } finally {
@@ -147,7 +306,7 @@ const Register = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md w-full">
+            <div className="max-w-2xl w-full">
                 <div className="text-center mb-8">
                     <div className="flex justify-center mb-4">
                         <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
@@ -162,6 +321,7 @@ const Register = () => {
 
                 <div className="card">
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Basic Information */}
                         <div className="form-group">
                             <label htmlFor="username" className="form-label">
                                 Username
@@ -236,21 +396,38 @@ const Register = () => {
                             )}
                         </div>
 
-                        <div className="form-group">
-                            <label htmlFor="role" className="form-label">
-                                I want to join as
-                            </label>
-                            <select
-                                id="role"
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                className="form-input"
-                            >
-                                <option value="buyer">Customer</option>
-                                <option value="farmer">Farmer</option>
-                            </select>
-                        </div>
+                        {/* Only show role selection if not joining as farmer */}
+                        {!searchParams.get('joinAsFarmer') && (
+                            <div className="form-group">
+                                <label htmlFor="role" className="form-label">
+                                    I want to join as
+                                </label>
+                                <select
+                                    id="role"
+                                    name="role"
+                                    value={formData.role}
+                                    onChange={handleChange}
+                                    className="form-input"
+                                >
+                                    <option value="buyer">Customer</option>
+                                    <option value="farmer">Farmer</option>
+                                </select>
+                            </div>
+                        )}
+
+                        {/* Show farmer role info if joining as farmer */}
+                        {searchParams.get('joinAsFarmer') && (
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Joining as Farmer
+                                </label>
+                                <div className="p-3 bg-primary-50 rounded-lg border border-primary-200">
+                                    <p className="text-sm text-primary-800">
+                                        You're joining GreenFarm as a farmer. You'll be able to list your farms, crops, and connect with customers.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="form-group">
                             <label htmlFor="phone" className="form-label">
@@ -270,145 +447,62 @@ const Register = () => {
                             )}
                         </div>
 
-                        {/* Farmer-specific fields */}
-                        {formData.role === 'farmer' && (
+                        {/* Only show password fields if not joining as farmer (logged-in user) */}
+                        {!searchParams.get('joinAsFarmer') && (
                             <>
                                 <div className="form-group">
-                                    <label htmlFor="farmName" className="form-label">
-                                        Farm Name
+                                    <label htmlFor="password" className="form-label">
+                                        Password
                                     </label>
                                     <input
-                                        type="text"
-                                        id="farmName"
-                                        name="farmName"
-                                        value={formData.farmName}
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        value={formData.password}
                                         onChange={handleChange}
-                                        className={`form-input ${errors.farmName ? 'error' : ''}`}
-                                        placeholder="Enter your farm name"
+                                        className={`form-input ${errors.password ? 'error' : ''}`}
+                                        placeholder="Create a password"
                                     />
-                                    {errors.farmName && (
-                                        <p className="form-error">{errors.farmName}</p>
+                                    {errors.password && (
+                                        <p className="form-error">{errors.password}</p>
                                     )}
                                 </div>
 
                                 <div className="form-group">
-                                    <label htmlFor="farmDescription" className="form-label">
-                                        Farm Description
-                                    </label>
-                                    <textarea
-                                        id="farmDescription"
-                                        name="farmDescription"
-                                        value={formData.farmDescription}
-                                        onChange={handleChange}
-                                        rows="3"
-                                        className="form-input"
-                                        placeholder="Tell us about your farm"
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="address" className="form-label">
-                                        Farm Address
+                                    <label htmlFor="confirmPassword" className="form-label">
+                                        Confirm Password
                                     </label>
                                     <input
-                                        type="text"
-                                        id="address"
-                                        name="address"
-                                        value={formData.address}
+                                        type="password"
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        value={formData.confirmPassword}
                                         onChange={handleChange}
-                                        className={`form-input ${errors.address ? 'error' : ''}`}
-                                        placeholder="Street address"
+                                        className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
+                                        placeholder="Confirm your password"
                                     />
-                                    {errors.address && (
-                                        <p className="form-error">{errors.address}</p>
+                                    {errors.confirmPassword && (
+                                        <p className="form-error">{errors.confirmPassword}</p>
                                     )}
-                                </div>
-
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div className="form-group">
-                                        <label htmlFor="city" className="form-label">City</label>
-                                        <input
-                                            type="text"
-                                            id="city"
-                                            name="city"
-                                            value={formData.city}
-                                            onChange={handleChange}
-                                            className={`form-input ${errors.city ? 'error' : ''}`}
-                                            placeholder="City"
-                                        />
-                                        {errors.city && (
-                                            <p className="form-error">{errors.city}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label htmlFor="state" className="form-label">State</label>
-                                        <input
-                                            type="text"
-                                            id="state"
-                                            name="state"
-                                            value={formData.state}
-                                            onChange={handleChange}
-                                            className={`form-input ${errors.state ? 'error' : ''}`}
-                                            placeholder="State"
-                                        />
-                                        {errors.state && (
-                                            <p className="form-error">{errors.state}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label htmlFor="zipCode" className="form-label">Zip Code</label>
-                                        <input
-                                            type="text"
-                                            id="zipCode"
-                                            name="zipCode"
-                                            value={formData.zipCode}
-                                            onChange={handleChange}
-                                            className={`form-input ${errors.zipCode ? 'error' : ''}`}
-                                            placeholder="Zip code"
-                                        />
-                                        {errors.zipCode && (
-                                            <p className="form-error">{errors.zipCode}</p>
-                                        )}
-                                    </div>
                                 </div>
                             </>
                         )}
 
                         <div className="form-group">
-                            <label htmlFor="password" className="form-label">
-                                Password
+                            <label htmlFor="bio" className="form-label">
+                                Tell us about yourself
                             </label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={formData.password}
+                            <textarea
+                                id="bio"
+                                name="bio"
+                                value={formData.bio}
                                 onChange={handleChange}
-                                className={`form-input ${errors.password ? 'error' : ''}`}
-                                placeholder="Create a password"
+                                rows="3"
+                                className={`form-input ${errors.bio ? 'error' : ''}`}
+                                placeholder={formData.role === 'farmer' ? "Share your farming experience, methods, and what makes your farm special..." : "Tell us about yourself..."}
                             />
-                            {errors.password && (
-                                <p className="form-error">{errors.password}</p>
-                            )}
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="confirmPassword" className="form-label">
-                                Confirm Password
-                            </label>
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                className={`form-input ${errors.confirmPassword ? 'error' : ''}`}
-                                placeholder="Confirm your password"
-                            />
-                            {errors.confirmPassword && (
-                                <p className="form-error">{errors.confirmPassword}</p>
+                            {errors.bio && (
+                                <p className="form-error">{errors.bio}</p>
                             )}
                         </div>
 
@@ -440,10 +534,10 @@ const Register = () => {
                             {loading ? (
                                 <div className="flex items-center gap-2">
                                     <div className="spinner"></div>
-                                    Creating account...
+                                    {searchParams.get('joinAsFarmer') ? 'Joining as Farmer...' : 'Creating account...'}
                                 </div>
                             ) : (
-                                'Create account'
+                                searchParams.get('joinAsFarmer') ? 'Join as Farmer' : 'Create account'
                             )}
                         </button>
                     </form>

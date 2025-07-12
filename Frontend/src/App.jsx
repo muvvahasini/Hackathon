@@ -22,28 +22,28 @@ function App() {
           {/* Public routes */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
-            <Route path="products" element={<Products />} />
-            <Route path="products/:id" element={<ProductDetail />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
             
             {/* Protected routes */}
-            <Route path="dashboard" element={
+            <Route path="/dashboard" element={
               <PrivateRoute>
                 <Dashboard />
               </PrivateRoute>
             } />
-            <Route path="profile" element={
+            <Route path="/profile" element={
               <PrivateRoute>
                 <Profile />
               </PrivateRoute>
             } />
-            <Route path="messages" element={
+            <Route path="/messages" element={
               <PrivateRoute>
                 <Messages />
               </PrivateRoute>
             } />
-            <Route path="orders" element={
+            <Route path="/orders" element={
               <PrivateRoute>
                 <Orders />
               </PrivateRoute>

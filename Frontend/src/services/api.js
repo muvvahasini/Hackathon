@@ -25,9 +25,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        // Only handle 401 errors for non-auth endpoints
+        if (error.response?.status === 401 && !error.config.url.includes('/auth/')) {
+            // Clear token but don't redirect - let the AuthContext handle it
             localStorage.removeItem('token')
-            window.location.href = '/login'
+            delete api.defaults.headers.common['Authorization']
         }
         return Promise.reject(error)
     }
@@ -38,6 +40,8 @@ export const authAPI = {
     login: (credentials) => api.post('/auth/login', credentials),
     register: (userData) => api.post('/auth/register', userData),
     me: () => api.get('/auth/me'),
+    logout: () => api.post('/auth/logout'),
+    refresh: () => api.post('/auth/refresh'),
 }
 
 // Users API
@@ -46,6 +50,33 @@ export const usersAPI = {
     updateProfile: (userData) => api.put('/users/profile', userData),
     getUsers: (params) => api.get('/users', { params }),
     getUser: (id) => api.get(`/users/${id}`),
+}
+
+// Farms API
+export const farmsAPI = {
+    getFarms: (params) => api.get('/farms', { params }),
+    getMyFarms: () => api.get('/farms/my-farms'),
+    getFarm: (id) => api.get(`/farms/${id}`),
+    createFarm: (farmData) => api.post('/farms', farmData),
+    updateFarm: (id, farmData) => api.put(`/farms/${id}`, farmData),
+    deleteFarm: (id) => api.delete(`/farms/${id}`),
+    uploadFarmImages: (farmId, images) => {
+        const formData = new FormData()
+        images.forEach((image, index) => {
+            formData.append('images', image.file)
+            if (image.caption) {
+                formData.append('captions', image.caption)
+            }
+        })
+        return api.post(`/farms/${farmId}/images`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        })
+    },
+    addCrop: (farmId, cropData) => api.post(`/farms/${farmId}/crops`, cropData),
+    updateCrop: (farmId, cropId, cropData) => api.put(`/farms/${farmId}/crops/${cropId}`, cropData),
+    deleteCrop: (farmId, cropId) => api.delete(`/farms/${farmId}/crops/${cropId}`),
 }
 
 // Products API
