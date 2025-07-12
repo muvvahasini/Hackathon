@@ -1,241 +1,225 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { ordersAPI } from '../services/api'
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import './Orders.css';
 
 const Orders = () => {
-  const [orders, setOrders] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('all')
+  const { user } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
 
+  // Mock data for demonstration
   useEffect(() => {
-    fetchOrders()
-  }, [])
+    const mockOrders = [
+      {
+        id: 'ORD001',
+        productName: 'Organic Tomatoes',
+        price: 45.99,
+        status: 'pending',
+        date: '2024-01-15',
+        quantity: 2,
+        farmer: 'John Smith',
+        customer: 'Alice Johnson'
+      },
+      {
+        id: 'ORD002',
+        productName: 'Fresh Carrots',
+        price: 32.50,
+        status: 'confirmed',
+        date: '2024-01-14',
+        quantity: 3,
+        farmer: 'Sarah Wilson',
+        customer: 'Bob Brown'
+      },
+      {
+        id: 'ORD003',
+        productName: 'Green Lettuce',
+        price: 28.75,
+        status: 'processing',
+        date: '2024-01-13',
+        quantity: 1,
+        farmer: 'Mike Davis',
+        customer: 'Carol White'
+      },
+      {
+        id: 'ORD004',
+        productName: 'Red Bell Peppers',
+        price: 55.00,
+        status: 'shipped',
+        date: '2024-01-12',
+        quantity: 4,
+        farmer: 'Emma Taylor',
+        customer: 'David Lee'
+      },
+      {
+        id: 'ORD005',
+        productName: 'Organic Spinach',
+        price: 38.25,
+        status: 'delivered',
+        date: '2024-01-11',
+        quantity: 2,
+        farmer: 'Lisa Anderson',
+        customer: 'Frank Miller'
+      }
+    ];
 
-  const fetchOrders = async () => {
-    try {
-      setLoading(true)
-      const response = await ordersAPI.getOrders()
-      setOrders(response.data.orders || [])
-    } catch (error) {
-      console.error('Error fetching orders:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filteredOrders = orders.filter(order => {
-    if (filter === 'all') return true
-    return order.status === filter
-  })
+    setTimeout(() => {
+      setOrders(mockOrders);
+      setLoading(false);
+    }, 1000);
+  }, []);
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { color: 'badge-secondary', text: 'Pending' },
-      confirmed: { color: 'badge-blue-500', text: 'Confirmed' },
-      processing: { color: 'badge-secondary', text: 'Processing' },
-      shipped: { color: 'badge-primary', text: 'Shipped' },
-      delivered: { color: 'badge-success', text: 'Delivered' },
-      cancelled: { color: 'badge-error', text: 'Cancelled' }
-    }
-    
-    const config = statusConfig[status] || { color: 'badge-gray-500', text: status }
-    return <span className={`badge ${config.color}`}>{config.text}</span>
-  }
+      pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Pending' },
+      confirmed: { bg: 'bg-indigo-100', text: 'text-indigo-800', label: 'Confirmed' },
+      processing: { bg: 'bg-yellow-100', text: 'text-yellow-800', label: 'Processing' },
+      shipped: { bg: 'bg-green-100', text: 'text-green-800', label: 'Shipped' },
+      delivered: { bg: 'bg-green-100', text: 'text-green-800', label: 'Delivered' },
+      cancelled: { bg: 'bg-red-100', text: 'text-red-800', label: 'Cancelled' }
+    };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-800', label: status };
+    
+    return (
+      <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${config.bg} ${config.text}`}>
+        {config.label}
+      </span>
+    );
+  };
+
+  const filteredOrders = filter === 'all' 
+    ? orders 
+    : orders.filter(order => order.status === filter);
+
+  const handleCancelOrder = (orderId) => {
+    setOrders(orders.map(order => 
+      order.id === orderId 
+        ? { ...order, status: 'cancelled' }
+        : order
+    ));
+  };
 
   if (loading) {
     return (
-      <div className="py-8">
-        <div className="container">
-          <div className="flex items-center justify-center min-h-64">
-            <div className="spinner"></div>
-          </div>
+      <div className="page-container">
+        <div className="loading-spinner">
+          <div className="spinner"></div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="py-8">
-      <div className="container">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Orders</h1>
-          <p className="text-gray-600">
-            Track your orders and view order history
-          </p>
-        </div>
+    <div className="page-container">
+      <div className="header">
+        <h1>My Orders</h1>
+        <p>Track and manage your farm-to-table orders</p>
+      </div>
 
-        {/* Filter */}
-        <div className="card mb-8">
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === 'all'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              All Orders
-            </button>
-            <button
-              onClick={() => setFilter('pending')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === 'pending'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Pending
-            </button>
-            <button
-              onClick={() => setFilter('processing')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === 'processing'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Processing
-            </button>
-            <button
-              onClick={() => setFilter('shipped')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === 'shipped'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Shipped
-            </button>
-            <button
-              onClick={() => setFilter('delivered')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === 'delivered'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Delivered
-            </button>
-          </div>
-        </div>
+      <div className="filters">
+        <button 
+          className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+          onClick={() => setFilter('all')}
+        >
+          All Orders
+        </button>
+        <button 
+          className={`filter-btn ${filter === 'pending' ? 'active' : ''}`}
+          onClick={() => setFilter('pending')}
+        >
+          Pending
+        </button>
+        <button 
+          className={`filter-btn ${filter === 'confirmed' ? 'active' : ''}`}
+          onClick={() => setFilter('confirmed')}
+        >
+          Confirmed
+        </button>
+        <button 
+          className={`filter-btn ${filter === 'processing' ? 'active' : ''}`}
+          onClick={() => setFilter('processing')}
+        >
+          Processing
+        </button>
+        <button 
+          className={`filter-btn ${filter === 'shipped' ? 'active' : ''}`}
+          onClick={() => setFilter('shipped')}
+        >
+          Shipped
+        </button>
+        <button 
+          className={`filter-btn ${filter === 'delivered' ? 'active' : ''}`}
+          onClick={() => setFilter('delivered')}
+        >
+          Delivered
+        </button>
+      </div>
 
-        {/* Orders List */}
-        {filteredOrders.length === 0 ? (
-          <div className="card text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-            <p className="text-gray-600 mb-6">
-              {filter === 'all' 
-                ? "You haven't placed any orders yet."
-                : `No ${filter} orders found.`
-              }
-            </p>
-            <Link to="/products" className="btn btn-primary">
-              Browse Products
-            </Link>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {filteredOrders.map((order) => (
-              <div key={order._id} className="card">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-start gap-4">
-                      <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
-                        {order.product?.image ? (
-                          <img
-                            src={order.product.image}
-                            alt={order.product.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-semibold text-gray-900">
-                              {order.product?.name || 'Product not available'}
-                            </h3>
-                            <p className="text-sm text-gray-600">
-                              Order #{order._id.slice(-8).toUpperCase()}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-bold text-primary-600">
-                              ${order.totalPrice}
-                            </p>
-                            {getStatusBadge(order.status)}
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div>
-                            <p className="text-gray-600">Quantity</p>
-                            <p className="font-medium">{order.quantity}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600">Order Date</p>
-                            <p className="font-medium">{formatDate(order.createdAt)}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600">Farmer</p>
-                            <p className="font-medium">{order.product?.farmer?.name || 'Unknown'}</p>
-                          </div>
-                          <div>
-                            <p className="text-gray-600">Delivery Address</p>
-                            <p className="font-medium truncate">{order.deliveryAddress || 'Not specified'}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Link
-                      to={`/orders/${order._id}`}
-                      className="btn btn-outline btn-sm"
-                    >
-                      View Details
-                    </Link>
-                    {order.status === 'pending' && (
-                      <button
-                        onClick={() => handleCancelOrder(order._id)}
-                        className="btn btn-ghost btn-sm text-red-600 hover:text-red-700"
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
+      {filteredOrders.length === 0 ? (
+        <div className="empty-state">
+          <span className="empty-icon">📦</span>
+          <h3>No orders found</h3>
+          <p>You haven't placed any orders yet. Start shopping for fresh farm products!</p>
+          <Link to="/products" className="browse-btn">
+            Browse Products
+          </Link>
+        </div>
+      ) : (
+        <div className="orders-list">
+          {filteredOrders.map((order) => (
+            <div key={order.id} className="order-card">
+              <div className="order-header">
+                <h3>{order.productName}</h3>
+                <div className="order-price-status">
+                  <div className="price">${order.price}</div>
+                  {getStatusBadge(order.status)}
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
-export default Orders 
+              <div className="order-details">
+                <div className="detail">
+                  <span>Order ID</span>
+                  <span>{order.id}</span>
+                </div>
+                <div className="detail">
+                  <span>Date</span>
+                  <span>{new Date(order.date).toLocaleDateString()}</span>
+                </div>
+                <div className="detail">
+                  <span>Quantity</span>
+                  <span>{order.quantity} items</span>
+                </div>
+                <div className="detail">
+                  <span>Farmer</span>
+                  <span>{order.farmer}</span>
+                </div>
+                <div className="detail">
+                  <span>Customer</span>
+                  <span>{order.customer}</span>
+                </div>
+              </div>
+
+              <div className="order-actions">
+                <Link to={`/orders/${order.id}`} className="view-btn">
+                  View Details
+                </Link>
+                {order.status === 'pending' && (
+                  <button 
+                    className="cancel-btn"
+                    onClick={() => handleCancelOrder(order.id)}
+                  >
+                    Cancel Order
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Orders; 

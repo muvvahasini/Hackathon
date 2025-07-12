@@ -1,122 +1,150 @@
 import { Link } from 'react-router-dom'
+import './Home.css';
+
+//import './App.css';
 
 const Home = () => {
   return (
-    <div>
+    <div className="app-container">
+      {/* Navbar */}
+
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-50 to-secondary-50 py-20">
-        <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6">
-                Fresh from the
-                <span className="text-primary-600"> Farm</span>
-              </h1>
-              <p className="text-xl text-gray-600 mb-8">
-                Connect with local sustainable farmers and get fresh, organic products 
-                delivered directly to your doorstep. Support local agriculture while 
-                enjoying the best quality food.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/products" className="btn btn-primary btn-lg">
-                  Browse Products
-                </Link>
-                <Link to="/register" className="btn btn-outline btn-lg">
-                  Join as Farmer
-                </Link>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="bg-white rounded-2xl shadow-xl p-8">
-                <div className="aspect-square bg-gradient-to-br from-primary-100 to-secondary-100 rounded-xl flex items-center justify-center">
-                  <svg className="w-32 h-32 text-primary-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
+      <section className="hero-section" style={{ backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://i.pinimg.com/736x/e2/6d/35/e26d352c8710bab40b472bca96997506.jpg')" }}>
+        <div className="hero-content">
+          <h1 className="hero-title">We are Producing Natural Products</h1>
+          <div className="hero-tagline">
+            <span className="organic-tag">Organic</span>
+            <span className="farming-tag">Farming</span>
+          </div>
+          {/* <section className="stats-section">
+        <div className="stats-container">
+          <div className="stat-item">
+            <h2 className="stat-number">100K+</h2>
+            <p className="stat-text">Happy Clients</p>
+          </div>
+          <div className="stat-item">
+            <h2 className="stat-number">500+</h2>
+            <p className="stat-text">Sales</p>
+          </div>
+          <div className="stat-item">
+            <h2 className="stat-number">10+</h2>
+            <p className="stat-text">Years Experience</p>
+          </div>
+          <div className="stat-item">
+            <h2 className="stat-number">4.9</h2>
+            <p className="stat-text">Customer Rating</p>
+          </div>
+        </div>
+      </section> */}
+        </div>
+        
+      </section>
+ 
+      {/* Featured Products */}
+      <section className="featured-section">
+        <div className="section-header">
+          <h2 className="section-title">Our Featured Products</h2>
+          <p className="section-subtitle">Fresh from our farms to your table</p>
+        </div>
+        <div className="products-grid">
+          <div className="product-card">
+            <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Organic Vegetables" className="product-img" />
+            <h3>Fresh Vegetables</h3>
+            <p>100% organic, pesticide-free vegetables</p>
+            <button className="product-btn">View Products</button>
+          </div>
+          <div className="product-card">
+            <img src="https://images.unsplash.com/photo-1619566636858-adf3ef46400b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Organic Fruits" className="product-img" />
+            <h3>Seasonal Fruits</h3>
+            <p>Naturally ripened, full of flavor</p>
+            <button className="product-btn">View Products</button>
+          </div>
+          <div className="product-card">
+            <img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Whole Grains" className="product-img" />
+            <h3>Whole Grains</h3>
+            <p>Nutritious and wholesome grain products</p>
+            <button className="product-btn">View Products</button>
+          </div>
+          <div className="product-card">
+            <img src="https://i.pinimg.com/736x/ad/09/0f/ad090ffb0b75769c6167fa497e5f7a9a.jpg" alt="Seasonal Products" className="product-img" />
+            <h3>Seasonal Products</h3>
+            <p>Fresh harvests from each season</p>
+            <button className="product-btn">View Products</button>
+          </div>
+          <div className="product-card">
+            <img src="https://i.pinimg.com/1200x/09/b3/1c/09b31c8aeb43681a4ab54065d453d20d.jpg" alt="Regional Products" className="product-img" />
+            <h3>Regional Products</h3>
+            <p>Local specialties from our region</p>
+            <button className="product-btn">View Products</button>
+          </div>
+          <div className="product-card">
+            <img src="https://i.pinimg.com/736x/7d/d6/ea/7dd6ea31821901f477912c563313eb53.jpg" alt="Organic Herbs" className="product-img" />
+            <h3>Organic Herbs</h3>
+            <p>Fresh herbs and spices from our garden</p>
+            <button className="product-btn">View Products</button>
+          </div>
+        </div>
+      </section>
+      <section className="stats-section">
+        <div className="stats-container">
+          <div className="stat-item">
+            <h3 className="stat-number">100K+</h3>
+            <p className="stat-text">Happy Clients</p>
+          </div>
+          <div className="stat-item">
+            <h3 className="stat-number">500+</h3>
+            <p className="stat-text">Sales</p>
+          </div>
+          <div className="stat-item">
+            <h3 className="stat-number">10</h3>
+            <p className="stat-text">Years Experience</p>
+          </div>
+          <div className="stat-item">
+            <h3 className="stat-number">4.9</h3>
+            <p className="stat-text">Customer Rating</p>
+          </div>
+        </div>
+      </section>
+      
+      <section className="testimonial-section">
+        <div className="section-header">
+          <h2 className="section-title">What Our Customers Say</h2>
+          <p className="section-subtitle">Trusted by farmers and consumers alike</p>
+        </div>
+        <div className="testimonials-grid">
+          <div className="testimonial-card">
+            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Customer" className="testimonial-img" />
+            <p className="testimonial-text">"The quality of produce from GreenFarm is unmatched. My family has been healthier since we switched to their products. Fresh delivery every week!"</p>
+            <h4 className="testimonial-name">- Sarah Johnson, Buyer</h4>
+            <div className="testimonial-rating">★★★★★</div>
+          </div>
+          <div className="testimonial-card">
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80" alt="Farmer" className="testimonial-img" />
+            <p className="testimonial-text">"GreenFarm's consulting services transformed our farm's productivity while maintaining organic standards. Their expertise is invaluable."</p>
+            <h4 className="testimonial-name">- Michael Chen, Farmer</h4>
+            <div className="testimonial-rating">★★★★★</div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20">
-        <div className="container">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Why Choose GreenFarm?
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              We're committed to connecting you with the best local farmers and 
-              providing sustainable, high-quality products.
-            </p>
+      {/* Newsletter */}
+      <section className="newsletter-section">
+        <div className="newsletter-container">
+          <div className="newsletter-content">
+            <h2>Subscribe to Our Newsletter</h2>
+            <p>Get updates on seasonal products, farming tips, and special offers.</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="card text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Local & Fresh</h3>
-              <p className="text-gray-600">
-                All products come directly from local farms, ensuring maximum freshness 
-                and supporting your community.
-              </p>
-            </div>
-
-            <div className="card text-center">
-              <div className="w-16 h-16 bg-secondary-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-secondary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Organic & Sustainable</h3>
-              <p className="text-gray-600">
-                Certified organic products grown using sustainable farming practices 
-                that protect the environment.
-              </p>
-            </div>
-
-            <div className="card text-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Fast Delivery</h3>
-              <p className="text-gray-600">
-                Quick and reliable delivery service ensuring your fresh products 
-                arrive at your doorstep in perfect condition.
-              </p>
-            </div>
-          </div>
+          <form className="newsletter-form">
+            <input type="email" placeholder="Your email address" required />
+            <button type="submit">Subscribe</button>
+          </form>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-primary-600 py-20">
-        <div className="container text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-6">
-            Ready to Start Your Sustainable Journey?
-          </h2>
-          <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of customers who are already enjoying fresh, local, 
-            and sustainable products from GreenFarm.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/register" className="btn bg-white text-primary-600 hover:bg-gray-100 btn-lg">
-              Get Started Today
-            </Link>
-            <Link to="/products" className="btn btn-outline border-white text-white hover:bg-white hover:text-primary-600 btn-lg">
-              Explore Products
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Footer */}
+
     </div>
-  )
-}
+  );
+};
 
-export default Home 
+export default Home;
