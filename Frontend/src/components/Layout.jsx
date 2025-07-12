@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import Header from './Header'
-import Footer from './Footer'
+import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 
 const Layout = () => {
   const { loading } = useAuth()
@@ -16,10 +16,11 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Navbar/>
       <main className="flex-1">
         <Outlet />
       </main>
+      
       <Footer />
     </div>
   )

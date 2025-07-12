@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { productsAPI } from '../services/api'
+import './Products.css'
 
 const Products = () => {
   const [products, setProducts] = useState([])
@@ -51,9 +52,9 @@ const Products = () => {
 
   if (loading) {
     return (
-      <div className="py-8">
-        <div className="container">
-          <div className="flex items-center justify-center min-h-64">
+      <div className="products-page">
+        <div className="products-container">
+          <div className="loading-container">
             <div className="spinner"></div>
           </div>
         </div>
@@ -62,35 +63,35 @@ const Products = () => {
   }
 
   return (
-    <div className="py-8">
-      <div className="container">
+    <div className="products-page">
+      <div className="products-container">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Fresh Products</h1>
-          <p className="text-gray-600">
+        <div className="products-header">
+          <h1 className="products-title">Fresh Products</h1>
+          <p className="products-subtitle">
             Discover fresh, local, and sustainable products from our community of farmers
           </p>
         </div>
 
         {/* Filters */}
-        <div className="card mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="form-label">Search</label>
+        <div className="filters-card">
+          <div className="filters-grid">
+            <div className="filter-group">
+              <label className="filter-label">Search</label>
               <input
                 type="text"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="form-input"
+                className="filter-input"
               />
             </div>
-            <div>
-              <label className="form-label">Category</label>
+            <div className="filter-group">
+              <label className="filter-label">Category</label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="form-input"
+                className="filter-select"
               >
                 {categories.map(cat => (
                   <option key={cat} value={cat}>
@@ -99,12 +100,12 @@ const Products = () => {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="form-label">Sort by</label>
+            <div className="filter-group">
+              <label className="filter-label">Sort by</label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="form-input"
+                className="filter-select"
               >
                 <option value="name">Name</option>
                 <option value="price-low">Price: Low to High</option>
@@ -117,66 +118,63 @@ const Products = () => {
 
         {/* Products Grid */}
         {sortedProducts.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="empty-state">
+            <div className="empty-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+            <h3 className="empty-title">No products found</h3>
+            <p className="empty-description">Try adjusting your search or filter criteria</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="products-grid">
             {sortedProducts.map((product) => (
               <Link
                 key={product._id}
                 to={`/products/${product._id}`}
-                className="card hover:shadow-lg transition-shadow"
+                className="product-card"
               >
-                <div className="aspect-square bg-gray-100 rounded-lg mb-4 overflow-hidden">
+                <div className="product-image-container">
                   {product.image ? (
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-full object-cover"
+                      className="product-image"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="product-image-placeholder">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
                   )}
                 </div>
 
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                <div className="product-info">
+                  <h3 className="product-name">
                     {product.name}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                  <p className="product-description">
                     {product.description}
                   </p>
 
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-lg font-bold text-primary-600">
+                  <div className="product-footer">
+                    <div className="product-price-section">
+                      <p className="product-price">
                         ${product.price}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="product-unit">
                         per {product.unit}
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1">
-                      <div className="flex">
+                    <div className="product-rating">
+                      <div className="stars-container">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <svg
                             key={star}
-                            className={`w-4 h-4 ${star <= (product.rating || 0)
-                                ? 'text-yellow-400'
-                                : 'text-gray-300'
-                              }`}
+                            className={`star ${star <= (product.rating || 0) ? 'filled' : 'empty'}`}
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
@@ -184,18 +182,18 @@ const Products = () => {
                           </svg>
                         ))}
                       </div>
-                      <span className="text-sm text-gray-500">
+                      <span className="rating-count">
                         ({product.reviewCount || 0})
                       </span>
                     </div>
                   </div>
 
-                  <div className="mt-3">
-                    <span className="badge badge-primary">
+                  <div className="product-badges">
+                    <span className="product-badge badge-primary">
                       {product.category}
                     </span>
                     {product.organic && (
-                      <span className="badge badge-success ml-2">
+                      <span className="product-badge badge-success">
                         Organic
                       </span>
                     )}

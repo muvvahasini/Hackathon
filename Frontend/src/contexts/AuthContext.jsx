@@ -88,19 +88,11 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/auth/register', registrationData)
       const { data } = response.data
 
-      // Store token and set user
-      localStorage.setItem('token', data.token)
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
-      setUser(data.user)
-
-      toast.success('Registration successful! Welcome to GreenFarm!')
+      // Don't automatically log in the user - just show success message
+      toast.success('Registration successful! Please login to continue.')
       
-      // Redirect based on role
-      if (userData.role === 'farmer') {
-        navigate('/dashboard?addFarm=true')
-      } else {
-        navigate('/dashboard')
-      }
+      // Redirect to login page instead of dashboard
+      navigate('/login')
       
       return { success: true }
     } catch (error) {

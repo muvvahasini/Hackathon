@@ -1,0 +1,337 @@
+/* Dashboard Styles */
+.dashboard-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px 0;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Welcome Section */
+.welcome-section {
+  background: white;
+  border-radius: 15px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-title {
+  color: #2c5530;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+}
+
+.welcome-subtitle {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Stats Cards */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-info h4 {
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-number {
+  color: #2c5530;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.stat-icon.primary {
+  background: #e8f5e8;
+  color: #4a7c59;
+}
+
+.stat-icon.success {
+  background: #e8f5e8;
+  color: #28a745;
+}
+
+.stat-icon.info {
+  background: #e3f2fd;
+  color: #2196f3;
+}
+
+.stat-icon.warning {
+  background: #fff3e0;
+  color: #ff9800;
+}
+
+/* Content Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+/* Cards */
+.dashboard-card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  border-bottom: 2px solid #f8f9fa;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  color: #2c5530;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* Activity Items */
+.activity-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.activity-item:last-child {
+  margin-bottom: 0;
+}
+
+.activity-item:hover {
+  background: #e9ecef;
+  transform: translateX(5px);
+}
+
+.activity-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-title {
+  color: #2c5530;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+  font-size: 0.95rem;
+}
+
+.activity-description {
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.activity-time {
+  color: #adb5bd;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Quick Actions */
+.actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.action-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.action-card:hover {
+  background: white;
+  border-color: #4a7c59;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(74, 124, 89, 0.2);
+}
+
+.action-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+}
+
+.action-icon svg {
+  width: 24px;
+  height: 24px;
+  color: white;
+}
+
+.action-title {
+  color: #2c5530;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Action Card Colors */
+.action-card.primary {
+  background: #e8f5e8;
+}
+
+.action-card.primary .action-icon {
+  background: #4a7c59;
+}
+
+.action-card.success {
+  background: #e8f5e8;
+}
+
+.action-card.success .action-icon {
+  background: #28a745;
+}
+
+.action-card.info {
+  background: #e3f2fd;
+}
+
+.action-card.info .action-icon {
+  background: #2196f3;
+}
+
+.action-card.warning {
+  background: #fff3e0;
+}
+
+.action-card.warning .action-icon {
+  background: #ff9800;
+}
+
+/* Loading Spinner */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4a7c59;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0 15px;
+  }
+  
+  .welcome-title {
+    font-size: 2rem;
+  }
+  
+  .content-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-section,
+  .dashboard-card {
+    padding: 20px;
+  }
+  
+  .welcome-title {
+    font-size: 1.8rem;
+  }
+  
+  .stat-card {
+    padding: 20px;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+} 
