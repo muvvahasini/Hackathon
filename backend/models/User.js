@@ -52,44 +52,36 @@ const userSchema = new mongoose.Schema({
     type: String,
     maxlength: [500, 'Bio cannot exceed 500 characters']
   },
+  // Default location for user (can be overridden by farm locations)
   location: {
     address: {
       type: String,
-      required: function() { return this.role === 'farmer'; }
+      required: function () { return this.role === 'farmer'; }
     },
     city: {
       type: String,
-      required: function() { return this.role === 'farmer'; }
+      required: function () { return this.role === 'farmer'; }
     },
     state: {
       type: String,
-      required: function() { return this.role === 'farmer'; }
+      required: function () { return this.role === 'farmer'; }
     },
     zipCode: {
       type: String,
-      required: function() { return this.role === 'farmer'; }
+      required: function () { return this.role === 'farmer'; }
     },
     coordinates: {
       lat: {
         type: Number,
-        required: function() { return this.role === 'farmer'; }
+        required: function () { return this.role === 'farmer'; }
       },
       lng: {
         type: Number,
-        required: function() { return this.role === 'farmer'; }
+        required: function () { return this.role === 'farmer'; }
       }
     }
   },
   // Farmer-specific fields
-  farmName: {
-    type: String,
-    required: function() { return this.role === 'farmer'; },
-    maxlength: [100, 'Farm name cannot exceed 100 characters']
-  },
-  farmDescription: {
-    type: String,
-    maxlength: [1000, 'Farm description cannot exceed 1000 characters']
-  },
   certifications: [{
     type: String,
     enum: ['organic', 'non-gmo', 'fair-trade', 'local', 'sustainable', 'biodynamic']
@@ -138,32 +130,32 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ "location.coordinates": "2dsphere" });
 
 // Virtual for full name
-userSchema.virtual('fullName').get(function() {
+userSchema.virtual('fullName').get(function () {
   return `${this.firstName} ${this.lastName}`;
 });
 
 // Virtual for profile completion
-userSchema.virtual('profileCompletion').get(function() {
+userSchema.virtual('profileCompletion').get(function () {
   let completion = 0;
   const fields = ['firstName', 'lastName', 'email', 'phone', 'bio'];
-  
+
   if (this.role === 'farmer') {
-    fields.push('farmName', 'farmDescription', 'location');
+    fields.push('location');
   }
-  
+
   fields.forEach(field => {
     if (this[field] && (typeof this[field] === 'string' ? this[field].trim() : true)) {
       completion += 1;
     }
   });
-  
+
   return Math.round((completion / fields.length) * 100);
 });
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  
+
   try {
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
@@ -174,12 +166,12 @@ userSchema.pre('save', async function(next) {
 });
 
 // Method to compare password
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
 // Method to get public profile (without sensitive data)
-userSchema.methods.getPublicProfile = function() {
+userSchema.methods.getPublicProfile = function () {
   const userObject = this.toObject();
   delete userObject.password;
   delete userObject.email;
@@ -188,7 +180,7 @@ userSchema.methods.getPublicProfile = function() {
 };
 
 // Update last active timestamp
-userSchema.methods.updateLastActive = function() {
+userSchema.methods.updateLastActive = function () {
   this.lastActive = new Date();
   return this.save();
 };

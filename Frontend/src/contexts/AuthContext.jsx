@@ -31,12 +31,16 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      console.log('Checking auth status...')
       const response = await api.get('/auth/me')
-      setUser(response.data.user)
+      console.log('Auth check successful:', response.data)
+      setUser(response.data.data.user)
     } catch (error) {
-      console.error('Auth check failed:', error)
+      console.error('Auth check failed:', error.response?.data || error.message)
+      // Clear token on any auth error
       localStorage.removeItem('token')
       delete api.defaults.headers.common['Authorization']
+      setUser(null)
     } finally {
       setLoading(false)
     }
@@ -47,6 +51,7 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/auth/login', { email, password })
       const { data } = response.data
 
+      // Store token and set user
       localStorage.setItem('token', data.token)
       api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
       setUser(data.user)
@@ -63,15 +68,40 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await api.post('/auth/register', userData)
+      // Prepare the registration data
+      const registrationData = {
+        username: userData.username,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        password: userData.password,
+        role: userData.role,
+        phone: userData.phone,
+        bio: userData.bio
+      }
+
+      // Add location for farmers
+      if (userData.role === 'farmer' && userData.location) {
+        registrationData.location = userData.location
+      }
+
+      const response = await api.post('/auth/register', registrationData)
       const { data } = response.data
 
+      // Store token and set user
       localStorage.setItem('token', data.token)
       api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
       setUser(data.user)
 
-      toast.success('Registration successful!')
-      navigate('/dashboard')
+      toast.success('Registration successful! Welcome to GreenFarm!')
+      
+      // Redirect based on role
+      if (userData.role === 'farmer') {
+        navigate('/dashboard?addFarm=true')
+      } else {
+        navigate('/dashboard')
+      }
+      
       return { success: true }
     } catch (error) {
       const message = error.response?.data?.message || 'Registration failed'
@@ -80,12 +110,20 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const logout = () => {
-    localStorage.removeItem('token')
-    delete api.defaults.headers.common['Authorization']
-    setUser(null)
-    navigate('/')
-    toast.success('Logged out successfully')
+  const logout = async () => {
+    try {
+      // Call logout endpoint to update last active
+      await api.post('/auth/logout')
+    } catch (error) {
+      console.error('Logout API call failed:', error)
+    } finally {
+      // Always clear local data regardless of API call success
+      localStorage.removeItem('token')
+      delete api.defaults.headers.common['Authorization']
+      setUser(null)
+      navigate('/')
+      toast.success('Logged out successfully')
+    }
   }
 
   const updateProfile = async (userData) => {
@@ -101,6 +139,35 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  // Refresh token function
+  const refreshToken = async () => {
+    try {
+      const response = await api.post('/auth/refresh')
+      const { data } = response.data
+      
+      localStorage.setItem('token', data.token)
+      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+      setUser(data.user)
+      
+      return { success: true }
+    } catch (error) {
+      console.error('Token refresh failed:', error)
+      // If refresh fails, logout the user
+      await logout()
+      return { success: false }
+    }
+  }
+
+  // Set up token refresh interval
+  useEffect(() => {
+    if (user) {
+      // Refresh token every 6 days (since token expires in 7 days)
+      const refreshInterval = setInterval(refreshToken, 6 * 24 * 60 * 60 * 1000)
+      
+      return () => clearInterval(refreshInterval)
+    }
+  }, [user])
+
   const value = {
     user,
     loading,
@@ -108,6 +175,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateProfile,
+    refreshToken,
     isAuthenticated: !!user
   }
 

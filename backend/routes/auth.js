@@ -63,7 +63,7 @@ const loginValidation = [
 // @route   POST /api/auth/register
 // @desc    Register a new user
 // @access  Public
-router.post('/register', 
+router.post('/register',
   rateLimit(3, 15 * 60 * 1000), // 3 attempts per 15 minutes
   registerValidation,
   asyncHandler(async (req, res) => {
@@ -98,8 +98,8 @@ router.post('/register',
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: existingUser.email === email 
-          ? 'Email already registered' 
+        message: existingUser.email === email
+          ? 'Email already registered'
           : 'Username already taken'
       });
     }
@@ -178,7 +178,7 @@ router.post('/login',
 
     // Find user by email
     const user = await User.findOne({ email }).select('+password');
-    
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -196,7 +196,7 @@ router.post('/login',
 
     // Check password
     const isPasswordValid = await user.comparePassword(password);
-    
+
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
@@ -226,7 +226,7 @@ router.post('/login',
 // @access  Private
 router.post('/refresh', asyncHandler(async (req, res) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
-  
+
   if (!token) {
     throw new AppError('No token provided', 401);
   }
@@ -234,7 +234,7 @@ router.post('/refresh', asyncHandler(async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
-    
+
     if (!user || !user.isActive) {
       throw new AppError('User not found or inactive', 401);
     }
@@ -278,7 +278,7 @@ router.post('/forgot-password',
     const { email } = req.body;
 
     const user = await User.findOne({ email });
-    
+
     if (!user) {
       // Don't reveal if email exists or not
       return res.json({
@@ -334,13 +334,13 @@ router.post('/reset-password',
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
+
       if (decoded.type !== 'password-reset') {
         throw new AppError('Invalid reset token', 400);
       }
 
       const user = await User.findById(decoded.userId);
-      
+
       if (!user) {
         throw new AppError('User not found', 404);
       }
@@ -366,17 +366,35 @@ router.post('/reset-password',
 // @desc    Get current user
 // @access  Private
 router.get('/me', asyncHandler(async (req, res) => {
-  // This route requires auth middleware to be applied
-  if (!req.user) {
-    throw new AppError('Not authenticated', 401);
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+
+  if (!token) {
+    throw new AppError('No token provided', 401);
   }
 
-  res.json({
-    success: true,
-    data: {
-      user: req.user.getPublicProfile()
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user || !user.isActive) {
+      throw new AppError('User not found or inactive', 401);
     }
-  });
+
+    res.json({
+      success: true,
+      data: {
+        user: user.getPublicProfile()
+      }
+    });
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      throw new AppError('Invalid token', 401);
+    }
+    if (error.name === 'TokenExpiredError') {
+      throw new AppError('Token expired', 401);
+    }
+    throw new AppError('Authentication failed', 401);
+  }
 }));
 
 // @route   POST /api/auth/logout
