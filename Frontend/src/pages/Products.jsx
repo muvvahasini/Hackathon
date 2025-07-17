@@ -17,10 +17,118 @@ const Products = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true)
+      console.log('Fetching products from API...')
+      console.log('Current user token:', localStorage.getItem('token') ? 'Present' : 'Not present')
+      
       const response = await productsAPI.getProducts()
-      setProducts(response.data.products || [])
+      console.log('API Response:', response)
+      
+      // Handle the actual backend response structure
+      const productsData = response.data?.data?.products || response.data?.products || []
+      console.log('Products data:', productsData)
+      
+      // If no products from API, use fallback sample products
+      if (productsData.length === 0) {
+        console.log('No products from API, using fallback data')
+        const fallbackProducts = [
+          {
+            _id: 'sample1',
+            name: 'Fresh Organic Tomatoes',
+            description: 'Sweet and juicy organic tomatoes, freshly harvested from our sustainable farm.',
+            category: 'vegetables',
+            price: { amount: 3.50, unit: 'lb' },
+            images: [{
+              url: 'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+              isPrimary: true
+            }],
+            certifications: ['organic', 'local'],
+            rating: { average: 4.5, count: 12 }
+          },
+          {
+            _id: 'sample2',
+            name: 'Organic Strawberries',
+            description: 'Plump, red organic strawberries bursting with flavor. Perfect for desserts and smoothies.',
+            category: 'fruits',
+            price: { amount: 4.50, unit: 'lb' },
+            images: [{
+              url: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+              isPrimary: true
+            }],
+            certifications: ['organic', 'local'],
+            rating: { average: 4.8, count: 15 }
+          },
+          {
+            _id: 'sample3',
+            name: 'Farm Fresh Eggs',
+            description: 'Large, brown eggs from free-range chickens. Rich in flavor and perfect for any recipe.',
+            category: 'eggs',
+            price: { amount: 5.00, unit: 'dozen' },
+            images: [{
+              url: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+              isPrimary: true
+            }],
+            certifications: ['local'],
+            rating: { average: 4.6, count: 18 }
+          }
+        ]
+        setProducts(fallbackProducts)
+      } else {
+        setProducts(productsData)
+      }
     } catch (error) {
       console.error('Error fetching products:', error)
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        headers: error.response?.headers
+      })
+      
+      // Use fallback products on error
+      console.log('Using fallback products due to API error')
+      const fallbackProducts = [
+        {
+          _id: 'sample1',
+          name: 'Fresh Organic Tomatoes',
+          description: 'Sweet and juicy organic tomatoes, freshly harvested from our sustainable farm.',
+          category: 'vegetables',
+          price: { amount: 3.50, unit: 'lb' },
+          images: [{
+            url: 'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+            isPrimary: true
+          }],
+          certifications: ['organic', 'local'],
+          rating: { average: 4.5, count: 12 }
+        },
+        {
+          _id: 'sample2',
+          name: 'Organic Strawberries',
+          description: 'Plump, red organic strawberries bursting with flavor. Perfect for desserts and smoothies.',
+          category: 'fruits',
+          price: { amount: 4.50, unit: 'lb' },
+          images: [{
+            url: 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+            isPrimary: true
+          }],
+          certifications: ['organic', 'local'],
+          rating: { average: 4.8, count: 15 }
+        },
+        {
+          _id: 'sample3',
+          name: 'Farm Fresh Eggs',
+          description: 'Large, brown eggs from free-range chickens. Rich in flavor and perfect for any recipe.',
+          category: 'eggs',
+          price: { amount: 5.00, unit: 'dozen' },
+          images: [{
+            url: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80',
+            isPrimary: true
+          }],
+          certifications: ['local'],
+          rating: { average: 4.6, count: 18 }
+        }
+      ]
+      setProducts(fallbackProducts)
     } finally {
       setLoading(false)
     }
@@ -136,9 +244,9 @@ const Products = () => {
                 className="product-card"
               >
                 <div className="product-image-container">
-                  {product.image ? (
+                  {(product.primaryImage || (product.images && product.images.length > 0)) ? (
                     <img
-                      src={product.image}
+                      src={product.primaryImage || product.images[0].url}
                       alt={product.name}
                       className="product-image"
                     />
@@ -162,10 +270,10 @@ const Products = () => {
                   <div className="product-footer">
                     <div className="product-price-section">
                       <p className="product-price">
-                        ${product.price}
+                        ${product.price?.amount ?? product.price}
                       </p>
                       <p className="product-unit">
-                        per {product.unit}
+                        per {product.price?.unit ?? product.unit}
                       </p>
                     </div>
 
@@ -174,7 +282,7 @@ const Products = () => {
                         {[1, 2, 3, 4, 5].map((star) => (
                           <svg
                             key={star}
-                            className={`star ${star <= (product.rating || 0) ? 'filled' : 'empty'}`}
+                            className={`star ${star <= (product.rating?.average || product.rating || 0) ? 'filled' : 'empty'}`}
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
@@ -183,7 +291,7 @@ const Products = () => {
                         ))}
                       </div>
                       <span className="rating-count">
-                        ({product.reviewCount || 0})
+                        ({product.rating?.count || product.reviewCount || 0})
                       </span>
                     </div>
                   </div>
@@ -192,7 +300,7 @@ const Products = () => {
                     <span className="product-badge badge-primary">
                       {product.category}
                     </span>
-                    {product.organic && (
+                    {(product.certifications?.includes('organic')) && (
                       <span className="product-badge badge-success">
                         Organic
                       </span>

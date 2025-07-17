@@ -20,10 +20,13 @@ const Navbar = () => {
           <ul className="nav-menu nav-menu-right">
             <li className="nav-item"><Link to="/home" className="nav-link active">Home</Link></li>
             <li className="nav-item"><Link to="/about" className="nav-link">About</Link></li>
+            <li className="nav-item"><Link to="/products" className="nav-link">Products</Link></li>
             <li className="nav-item"><Link to="/cart" className="nav-link">🛒 Cart</Link></li>
-            <li className='nav-item'><Link to="/dashboard" className='nav-link'>Dashboard</Link></li>
+            {isAuthenticated && user?.role === 'farmer' && (
+              <li className="nav-item"><Link to="/dashboard" className="nav-link">Dashboard</Link></li>
+            )}
             <li className='nav-item'><Link to="/orders" className='nav-link'>Orders</Link></li>
-            
+
             {isAuthenticated ? (
               <>
                 {/* Show Dashboard button for farmers */}

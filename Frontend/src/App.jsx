@@ -8,12 +8,14 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Cart from './pages/Cart'
 import Dashboard from './pages/Dashboard'
-import Products from './pages/Products'
+import Products from './pages/Products.jsx'
 import About from './pages/About'
-import ProductDetail from './pages/ProductDetail'
+import ProductDetail from './pages/ProductDetail.jsx'
 import Profile from './pages/Profile'
 import Messages from './pages/Messages'
 import Orders from './pages/Orders'
+import Transactions from './pages/Transactions'
+import AddProduct from './pages/AddProduct'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -26,10 +28,10 @@ function App() {
             <Route path="/home" index element={<Home />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
-            <Route path="/about" element={<About/>}  />
+            <Route path="/about" element={<About />} />
             <Route path="/products" element={<Products />} />
             <Route path="/products/:id" element={<ProductDetail />} />
-            <Route path="/cart" element={<Cart/>}/>
+            <Route path="/cart" element={<Cart />} />
             {/* Protected routes */}
             <Route path="dashboard" element={
               <PrivateRoute>
@@ -51,7 +53,17 @@ function App() {
                 <Orders />
               </PrivateRoute>
             } />
-            
+            <Route path="transactions" element={
+              <PrivateRoute>
+                <Transactions />
+              </PrivateRoute>
+            } />
+            <Route path="/add-product" element={
+              <PrivateRoute>
+                <AddProduct />
+              </PrivateRoute>
+            } />
+
             {/* 404 route */}
             <Route path="*" element={<NotFound />} />
           </Route>

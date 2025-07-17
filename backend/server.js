@@ -10,6 +10,7 @@ const socketIo = require('socket.io');
 const path = require('path');
 const fs = require('fs');
 
+
 // Load environment variables
 dotenv.config();
 
@@ -36,6 +37,9 @@ const orderRoutes = require('./routes/orders');
 const reviewRoutes = require('./routes/reviews');
 const messageRoutes = require('./routes/messages');
 const farmRoutes = require('./routes/farms');
+const transactionRoutes = require('./routes/transactions');
+const paypalRoutes = require('./routes/paypal');
+const phonepeRoutes = require('./routes/phonepe');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -117,9 +121,9 @@ app.use('/api/orders', auth, orderRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/messages', auth, messageRoutes);
 app.use('/api/farms', farmRoutes);
-
-// Apply auth middleware to specific auth routes that need it
-app.use('/api/auth/logout', auth);
+app.use('/api/transactions', transactionRoutes);
+app.use('/api/paypal', paypalRoutes);
+app.use('/api/phonepe', phonepeRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

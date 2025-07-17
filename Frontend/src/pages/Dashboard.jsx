@@ -1,9 +1,23 @@
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import FarmManager from '../components/FarmManager'
+import AddProduct from './AddProduct'
 import './Dashboard.css'
+import { useEffect } from 'react';
 
 const Dashboard = () => {
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'farmer') {
+      navigate('/'); // Redirect to home if not authorized
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  if (!isAuthenticated || user?.role !== 'farmer') {
+    return null; // Or return a Not Authorized message if you prefer
+  }
 
   const isFarmer = user?.role === 'farmer'
 
@@ -144,16 +158,16 @@ const Dashboard = () => {
               <h3 className="card-title">Quick Actions</h3>
             </div>
             <div className="actions-grid">
-              <a href="/products" className="action-card primary">
+              <Link to="/add-product" className="action-card primary">
                 <div className="action-icon">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
                 </div>
                 <p className="action-title">
-                  {isFarmer ? 'Manage Products' : 'ADD Products'}
+                  {isFarmer ? 'Manage Products' : 'MY Products'}
                 </p>
-              </a>
+              </Link>
 
               <a href="/orders" className="action-card success">
                 <div className="action-icon">
@@ -189,4 +203,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard 
+export default Dashboard

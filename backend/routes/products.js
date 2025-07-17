@@ -6,10 +6,23 @@ const { auth, authorize, checkOwnership } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Test endpoint to verify authentication
+router.get('/test-auth', auth, (req, res) => {
+  res.json({
+    success: true,
+    message: 'Authentication working',
+    user: req.user
+  });
+});
+
 // @route   GET /api/products
 // @desc    Get all products with filters
 // @access  Public
 router.get('/', asyncHandler(async (req, res) => {
+  console.log('GET /api/products called');
+  console.log('Authorization header:', req.header('Authorization') ? 'Present' : 'Not present');
+  console.log('User from request:', req.user ? 'Present' : 'Not present');
+
   const {
     search,
     category,
@@ -91,6 +104,9 @@ router.get('/', asyncHandler(async (req, res) => {
   // Pagination
   const skip = (parseInt(page) - 1) * parseInt(limit);
 
+  console.log('Query:', query);
+  console.log('Sort options:', sortOptions);
+
   const products = await Product.find(query)
     .populate('farmer', 'firstName lastName farmName location rating')
     .sort(sortOptions)
@@ -98,6 +114,8 @@ router.get('/', asyncHandler(async (req, res) => {
     .skip(skip);
 
   const total = await Product.countDocuments(query);
+
+  console.log(`Found ${products.length} products out of ${total} total`);
 
   res.json({
     success: true,
@@ -119,9 +137,9 @@ router.get('/', asyncHandler(async (req, res) => {
 router.get('/featured', asyncHandler(async (req, res) => {
   const { limit = 10 } = req.query;
 
-  const products = await Product.find({ 
-    isAvailable: true, 
-    isFeatured: true 
+  const products = await Product.find({
+    isAvailable: true,
+    isFeatured: true
   })
     .populate('farmer', 'firstName lastName farmName location rating')
     .sort({ rating: -1, createdAt: -1 })
@@ -358,7 +376,7 @@ router.post('/:id/favorite',
   auth,
   asyncHandler(async (req, res) => {
     const product = await Product.findById(req.params.id);
-    
+
     if (!product) {
       throw new AppError('Product not found', 404);
     }
@@ -382,7 +400,7 @@ router.get('/:id/reviews', asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, rating } = req.query;
 
   const product = await Product.findById(req.params.id);
-  
+
   if (!product) {
     throw new AppError('Product not found', 404);
   }

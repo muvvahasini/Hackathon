@@ -10,6 +10,7 @@ const Login = () => {
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const { login } = useAuth();
 
     const handleChange = (e) => {
@@ -35,8 +36,6 @@ const Login = () => {
         }
         if (!formData.password) {
             newErrors.password = 'Password is required';
-        } else if (formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters';
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -56,53 +55,64 @@ const Login = () => {
     };
 
     return (
-        <div className="login-container">
-            <div className="login-card">
-                <div className="logo">
-                    <h1>GreenFarm</h1>
-                    <p>Welcome back to your sustainable journey</p>
-                </div>
-                <form className="login-form" onSubmit={handleSubmit}>
-                    <div className="">
-                        <label className="form-label" htmlFor="email">Email address</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="form-input"
-                            placeholder="Enter your email"
-                        />
-                        {errors.email && <p className="form-error">{errors.email}</p>}
+        <div className="login-page-bg">
+            <div className="login-container">
+                <div className="login-card">
+                    <div className="logo">
+                        <h1>GreenFarm</h1>
+                        <p>Welcome back to your sustainable journey</p>
                     </div>
-                    <div className="">
-                        <label className="form-label" htmlFor="password">Password</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="form-input"
-                            placeholder="Enter your password"
-                        />
-                        {errors.password && <p className="form-error">{errors.password}</p>}
+                    <form className="login-form" onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label htmlFor="email">Email address</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="Enter your email"
+                                className={errors.email ? 'error' : ''}
+                            />
+                            {errors.email && <span className="error-message">{errors.email}</span>}
+                        </div>
+                        <div className="form-group password-group">
+                            <label htmlFor="password">Password</label>
+                            <div className="password-input-wrapper">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    id="password"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    placeholder="Enter your password"
+                                    className={errors.password ? 'error' : ''}
+                                />
+                                <button
+                                    type="button"
+                                    className="show-password-btn"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? '👁️' : '👁️‍🗨️'}
+                                </button>
+                            </div>
+                            {errors.password && <span className="error-message">{errors.password}</span>}
+                        </div>
+                        <div className="remember-me">
+                            <input
+                                id="remember-me"
+                                name="remember-me"
+                                type="checkbox"
+                            />
+                            <label htmlFor="remember-me">Remember me</label>
+                        </div>
+                        <button type="submit" className="login-button" disabled={loading}>
+                            {loading ? 'Signing in...' : 'Login'}
+                        </button>
+                    </form>
+                    <div className="login-footer">
+                        <p>Don't have an account? <Link to="/register">Sign In</Link></p>
                     </div>
-                    <div className="remember-me">
-                        <input
-                            id="remember-me"
-                            name="remember-me"
-                            type="checkbox"
-                        />
-                        <label htmlFor="remember-me">Remember me</label>
-                    </div>
-                    <button type="submit" className="login-button" disabled={loading}>
-                        {loading ? 'Signing in...' : 'Sign in'}
-                    </button>
-                </form>
-                <div className="login-footer">
-                    <p>Don't have an account? <Link to="/register">Sign up</Link></p>
                 </div>
             </div>
         </div>

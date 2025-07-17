@@ -68,6 +68,9 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
+      console.log('AuthContext: Starting registration process');
+      console.log('AuthContext: User data received:', userData);
+      
       // Prepare the registration data
       const registrationData = {
         username: userData.username,
@@ -85,7 +88,13 @@ export const AuthProvider = ({ children }) => {
         registrationData.location = userData.location
       }
 
+      console.log('AuthContext: Sending registration request to API');
+      console.log('AuthContext: API URL:', api.defaults.baseURL);
+      console.log('AuthContext: Registration data:', registrationData);
+      
       const response = await api.post('/auth/register', registrationData)
+      console.log('AuthContext: API response received:', response.data);
+      
       const { data } = response.data
 
       // Don't automatically log in the user - just show success message
@@ -94,8 +103,14 @@ export const AuthProvider = ({ children }) => {
       // Redirect to login page instead of dashboard
       navigate('/login')
       
+      console.log('AuthContext: Registration completed successfully');
       return { success: true }
     } catch (error) {
+      console.error('AuthContext: Registration error occurred');
+      console.error('AuthContext: Error object:', error);
+      console.error('AuthContext: Error response:', error.response);
+      console.error('AuthContext: Error message:', error.message);
+      
       const message = error.response?.data?.message || 'Registration failed'
       toast.error(message)
       return { success: false, error: message }
@@ -126,6 +141,19 @@ export const AuthProvider = ({ children }) => {
       return { success: true }
     } catch (error) {
       const message = error.response?.data?.message || 'Profile update failed'
+      toast.error(message)
+      return { success: false, error: message }
+    }
+  }
+
+  const changeRole = async (roleData) => {
+    try {
+      const response = await api.put(`/users/${user._id}/role`, roleData)
+      setUser(response.data.data.user)
+      toast.success('Role changed successfully! You can now add farms and products.')
+      return { success: true }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Role change failed'
       toast.error(message)
       return { success: false, error: message }
     }
@@ -167,6 +195,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateProfile,
+    changeRole,
     refreshToken,
     isAuthenticated: !!user
   }

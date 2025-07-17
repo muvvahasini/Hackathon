@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Cart.css';
 
 const Cart = () => {
+  const navigate = useNavigate();
   const [cartItems, setCartItems] = useState([
     {
       id: 1,
@@ -35,7 +36,7 @@ const Cart = () => {
 
   const updateQuantity = (id, newQuantity) => {
     if (newQuantity < 1) return;
-    
+
     setCartItems(prevItems =>
       prevItems.map(item =>
         item.id === id ? { ...item, quantity: newQuantity } : item
@@ -94,7 +95,7 @@ const Cart = () => {
                 <div className="item-image">
                   <img src={item.image} alt={item.name} />
                 </div>
-                
+
                 <div className="item-details">
                   <h3>{item.name}</h3>
                   <p className="item-category">{item.category}</p>
@@ -102,14 +103,14 @@ const Cart = () => {
                 </div>
 
                 <div className="item-quantity">
-                  <button 
+                  <button
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
                     className="quantity-btn"
                   >
                     -
                   </button>
                   <span className="quantity">{item.quantity}</span>
-                  <button 
+                  <button
                     onClick={() => updateQuantity(item.id, item.quantity + 1)}
                     className="quantity-btn"
                   >
@@ -121,7 +122,7 @@ const Cart = () => {
                   <p>${(item.price * item.quantity).toFixed(2)}</p>
                 </div>
 
-                <button 
+                <button
                   onClick={() => removeItem(item.id)}
                   className="remove-btn"
                 >
@@ -133,7 +134,7 @@ const Cart = () => {
 
           <div className="cart-summary">
             <h2>Order Summary</h2>
-            
+
             <div className="summary-item">
               <span>Subtotal</span>
               <span>${subtotal.toFixed(2)}</span>
@@ -169,7 +170,20 @@ const Cart = () => {
               </button>
             </div>
 
-            <button className="checkout-btn">
+            <button
+              className="checkout-btn"
+              onClick={() => {
+                const orderData = {
+                  items: cartItems,
+                  subtotal: subtotal,
+                  discount: discountAmount,
+                  shipping: shipping,
+                  total: total,
+                  couponCode: couponCode
+                };
+                navigate('/transactions', { state: { orderData } });
+              }}
+            >
               Proceed to Checkout
             </button>
 

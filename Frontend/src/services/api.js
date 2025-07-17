@@ -106,6 +106,20 @@ export const ordersAPI = {
     cancelOrder: (id) => api.delete(`/orders/${id}`),
 }
 
+// Transactions API
+export const transactionsAPI = {
+    getTransactions: (params) => api.get('/transactions', { params }),
+    getTransaction: (id) => api.get(`/transactions/${id}`),
+    createTransaction: (transactionData) => api.post('/transactions', transactionData),
+    getStats: (timeframe) => api.get('/transactions/stats', { params: { timeframe } }),
+    processTransaction: (id) => api.put(`/transactions/${id}/process`),
+    refundTransaction: (id, refundData) => api.put(`/transactions/${id}/refund`, refundData),
+    exportTransactions: (params) => api.get('/transactions/export', {
+        params,
+        responseType: 'blob'
+    }),
+}
+
 // Reviews API
 export const reviewsAPI = {
     getReviews: (productId) => api.get(`/products/${productId}/reviews`),

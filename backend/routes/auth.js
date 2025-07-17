@@ -20,33 +20,29 @@ const generateToken = (userId) => {
 // Validation rules
 const registerValidation = [
   body('username')
-    .isLength({ min: 3, max: 30 })
-    .withMessage('Username must be between 3 and 30 characters')
-    .matches(/^[a-zA-Z0-9_]+$/)
-    .withMessage('Username can only contain letters, numbers, and underscores'),
+    .notEmpty()
+    .withMessage('Username is required'),
   body('email')
     .isEmail()
     .normalizeEmail()
     .withMessage('Please provide a valid email'),
   body('password')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters long')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number'),
+    .notEmpty()
+    .withMessage('Password is required'),
   body('firstName')
     .trim()
-    .isLength({ min: 1, max: 50 })
-    .withMessage('First name is required and must be less than 50 characters'),
+    .notEmpty()
+    .withMessage('First name is required'),
   body('lastName')
     .trim()
-    .isLength({ min: 1, max: 50 })
-    .withMessage('Last name is required and must be less than 50 characters'),
+    .notEmpty()
+    .withMessage('Last name is required'),
   body('role')
     .isIn(['farmer', 'buyer'])
     .withMessage('Role must be either farmer or buyer'),
   body('phone')
     .optional()
-    .matches(/^[\+]?[1-9][\d]{0,15}$/)
+    .notEmpty()
     .withMessage('Please provide a valid phone number')
 ];
 
@@ -64,7 +60,6 @@ const loginValidation = [
 // @desc    Register a new user
 // @access  Public
 router.post('/register',
-  rateLimit(3, 15 * 60 * 1000), // 3 attempts per 15 minutes
   registerValidation,
   asyncHandler(async (req, res) => {
     const errors = validationResult(req);
@@ -83,11 +78,8 @@ router.post('/register',
       lastName,
       role,
       phone,
-      farmName,
       farmDescription,
       location,
-      certifications,
-      farmingMethods
     } = req.body;
 
     // Check if user already exists
@@ -117,25 +109,8 @@ router.post('/register',
 
     // Add farmer-specific fields if role is farmer
     if (role === 'farmer') {
-      if (!farmName) {
-        return res.status(400).json({
-          success: false,
-          message: 'Farm name is required for farmers'
-        });
-      }
-
-      if (!location || !location.address || !location.coordinates) {
-        return res.status(400).json({
-          success: false,
-          message: 'Location with address and coordinates is required for farmers'
-        });
-      }
-
-      userData.farmName = farmName;
-      userData.farmDescription = farmDescription;
-      userData.location = location;
-      userData.certifications = certifications || [];
-      userData.farmingMethods = farmingMethods || [];
+      userData.farmDescription = farmDescription || '';
+      userData.location = location || {};
     }
 
     // Create user
@@ -163,7 +138,6 @@ router.post('/register',
 // @desc    Login user
 // @access  Public
 router.post('/login',
-  rateLimit(5, 15 * 60 * 1000), // 5 attempts per 15 minutes
   loginValidation,
   asyncHandler(async (req, res) => {
     const errors = validationResult(req);
@@ -259,7 +233,6 @@ router.post('/refresh', asyncHandler(async (req, res) => {
 // @desc    Send password reset email
 // @access  Public
 router.post('/forgot-password',
-  rateLimit(3, 60 * 60 * 1000), // 3 attempts per hour
   [
     body('email')
       .isEmail()
@@ -310,7 +283,7 @@ router.post('/forgot-password',
 // @desc    Reset password with token
 // @access  Public
 router.post('/reset-password',
-  rateLimit(3, 60 * 60 * 1000), // 3 attempts per hour
+
   [
     body('token')
       .notEmpty()

@@ -105,13 +105,13 @@ const About = () => {
             </div>
             <div className="farmers-grid">
               <div className="farmer-card">
-                <img src="https://images.unsplash.com/photo-1605000797499-95a51c5269ae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Farmer Maria" />
+                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Farmer Maria" />
                 <h3>Maria Gonzalez</h3>
                 <p>Organic Vegetable Specialist</p>
                 <p className="farmer-quote">"Sustainable farming isn't just a practice, it's our responsibility to future generations."</p>
               </div>
               <div className="farmer-card">
-                <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Farmer James" />
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Farmer James" />
                 <h3>James Wilson</h3>
                 <p>Regenerative Agriculture Expert</p>
                 <p className="farmer-quote">"Healthy soil means healthy food and a healthy planet."</p>

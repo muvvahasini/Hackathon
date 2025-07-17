@@ -69,16 +69,6 @@ const userSchema = new mongoose.Schema({
     zipCode: {
       type: String,
       required: function () { return this.role === 'farmer'; }
-    },
-    coordinates: {
-      lat: {
-        type: Number,
-        required: function () { return this.role === 'farmer'; }
-      },
-      lng: {
-        type: Number,
-        required: function () { return this.role === 'farmer'; }
-      }
     }
   },
   // Farmer-specific fields
@@ -125,9 +115,6 @@ const userSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
-
-// Index for geospatial queries
-userSchema.index({ "location.coordinates": "2dsphere" });
 
 // Virtual for full name
 userSchema.virtual('fullName').get(function () {
@@ -176,7 +163,27 @@ userSchema.methods.getPublicProfile = function () {
   delete userObject.password;
   delete userObject.email;
   delete userObject.phone;
-  return userObject;
+  
+  // Ensure role is included in the response
+  return {
+    _id: userObject._id,
+    username: userObject.username,
+    firstName: userObject.firstName,
+    lastName: userObject.lastName,
+    role: userObject.role,
+    bio: userObject.bio,
+    profileImage: userObject.profileImage,
+    location: userObject.location,
+    certifications: userObject.certifications,
+    farmingMethods: userObject.farmingMethods,
+    preferences: userObject.preferences,
+    isVerified: userObject.isVerified,
+    isActive: userObject.isActive,
+    rating: userObject.rating,
+    profileCompletion: userObject.profileCompletion,
+    createdAt: userObject.createdAt,
+    updatedAt: userObject.updatedAt
+  };
 };
 
 // Update last active timestamp

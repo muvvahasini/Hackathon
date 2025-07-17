@@ -267,6 +267,83 @@ router.put('/:id/profile-image',
   })
 );
 
+// @route   PUT /api/users/:id/role
+// @desc    Change user role (buyer to farmer only)
+// @access  Private (owner only)
+router.put('/:id/role',
+  checkOwnership(User),
+  [
+    body('role')
+      .isIn(['farmer'])
+      .withMessage('Role can only be changed to farmer'),
+    body('bio')
+      .notEmpty()
+      .withMessage('Bio is required when becoming a farmer')
+      .isLength({ min: 10, max: 500 })
+      .withMessage('Bio must be between 10 and 500 characters'),
+    body('location')
+      .isObject()
+      .withMessage('Location is required when becoming a farmer'),
+    body('location.address')
+      .notEmpty()
+      .withMessage('Address is required'),
+    body('location.city')
+      .notEmpty()
+      .withMessage('City is required'),
+    body('location.state')
+      .notEmpty()
+      .withMessage('State is required'),
+    body('location.zipCode')
+      .notEmpty()
+      .withMessage('Zip code is required'),
+
+  ],
+  asyncHandler(async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
+    const user = req.resource;
+    const { role, bio, location } = req.body;
+
+    // Only allow changing from buyer to farmer
+    if (user.role !== 'buyer') {
+      return res.status(400).json({
+        success: false,
+        message: 'Role can only be changed from buyer to farmer'
+      });
+    }
+
+    // Update user role and farmer-specific fields
+    user.role = role;
+    user.bio = bio;
+    user.location = location;
+    
+    // Set default coordinates if not provided (can be updated later)
+    if (!user.location.coordinates) {
+      user.location.coordinates = { lat: 0, lng: 0 };
+    }
+    
+    // Set default certifications and farming methods
+    user.certifications = ['local'];
+    user.farmingMethods = ['traditional'];
+
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Role changed to farmer successfully. You can now add farms and products!',
+      data: {
+        user: user.getPublicProfile()
+      }
+    });
+  })
+);
+
 // @route   GET /api/users/:id/reviews
 // @desc    Get user reviews
 // @access  Public

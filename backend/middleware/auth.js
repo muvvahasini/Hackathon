@@ -32,6 +32,8 @@ const auth = async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
+        console.error('Auth middleware error:', error);
+
         if (error.name === 'JsonWebTokenError') {
             return res.status(401).json({
                 success: false,
@@ -46,7 +48,6 @@ const auth = async (req, res, next) => {
             });
         }
 
-        console.error('Auth middleware error:', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error.'
